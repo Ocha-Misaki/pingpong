@@ -1,5 +1,10 @@
 "use strict"
 {
+  const canvas = document.getElementById("canvasId")
+
+  canvas.width = 300
+  canvas.height = 300
+
   class Ball {
     constructor(_x, _y) {
       this.canvas = document.getElementById("canvasId")
@@ -32,44 +37,51 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      this.startingPointX = 100
-      this.endPointX = this.startingPointX + this.width
-      this.startingPointY = 285
-      this.endPointY = this.startingPointY + this.height
+      class Point {
+        constructor(_x, _y) {
+          this.x = _x
+          this.y = _y
+        }
+      }
       this.width = 100
       this.height = 15
+      this.ptStart = new Point(100, 260)
+      this.ptEnd = new Point(
+        this.ptStart.x + this.width,
+        this.ptStart.y + this.height
+      )
     }
     move() {
       document.addEventListener("keydown", (e) => {
         switch (e.keyCode) {
           case 37: //左
-            this.startingPointX += 10
+            this.ptStart.x += 10
             this.draw()
             break
           case 39: //右
-            this.startingPointX -= 10
+            this.ptStart.x -= 10
             this.draw()
             break
         }
       })
     }
-    update() {
-      if (y + changeY > startingPointY) {
-        changeY *= -1
-      }
+    isHit(ball) {
       if (
-        x + changeX > startingPointX &&
-        x + changeX > endPointX &&
-        y + changeY > startingPointY
+        ball.x + ball.changeX > this.ptStart.x &&
+        ball.x + ball.changeX < this.ptEnd.x &&
+        ball.y + ball.changeY > this.ptStart.y &&
+        ball.y + ball.changeY < this.ptEnd.y
       ) {
-        changeX *= -1
+        return true
+      } else {
+        return false
       }
     }
     draw() {
       this.context.fillStyle = "white"
       this.context.fillRect(
-        this.startingPointX,
-        this.startingPointY,
+        this.ptStart.x,
+        this.ptStart.y,
         this.width,
         this.height
       )
@@ -80,7 +92,7 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      this.ball = new Ball(100, 75) //決めうちの値を後で修正
+      this.ball = new Ball(0, 75) //決めうちの値を後で修正
       this.bar = new Bar()
       this.width = 300
       this.height = 300
@@ -93,20 +105,14 @@
       }, 100)
     }
     update() {
-      this.ball.update()
       //barの判定
-      if (this.ball.y + this.ball.changeY > this.bar.startingPointY) {
+      if (this.bar.isHit(this.ball) == true) {
         this.ball.changeY *= -1
       }
-      if (
-        this.ball.x + this.ball.changeX > this.bar.startingPointX &&
-        this.ball.x + this.ball.changeX > this.bar.endPointX &&
-        this.ball.y + this.ball.changeY > this.bar.startingPointY
-      ) {
-        this.ball.changeX *= -1
-      }
+      this.ball.update()
     }
     draw() {
+      this.context.fillStyle = "black"
       this.context.fillRect(0, 0, this.width, this.height)
       this.ball.draw()
       this.bar.draw()
@@ -115,5 +121,5 @@
 
   const board = new Board()
   board.set()
-  board.draw()
+  // board.draw()
 }
