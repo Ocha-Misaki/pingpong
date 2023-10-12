@@ -17,6 +17,34 @@
   let changeY = 10
   let changeX = 10
 
+  //barを操作する関数
+  const movingBar = (element) => {
+    element.addEventListener("keydown", (e) => {
+      //barの残像を消す
+      context.clearRect(0, 0, canvas_beside, canvas_vertical)
+      //ballを再描画する
+      switch (e.keyCode) {
+        case 37: //左
+          startingPointX += 10
+          context.strokeRect(
+            startingPointX,
+            startingPointY,
+            barWidth,
+            barHeight
+          )
+          break
+        case 39: //右
+          startingPointX -= 10
+          context.strokeRect(
+            startingPointX,
+            startingPointY,
+            barWidth,
+            barHeight
+          )
+          break
+      }
+    })
+  }
   let intervalId = setInterval(() => {
     //boardを描画する
     context.fillRect(0, 0, canvas.width, canvas.height)
@@ -33,6 +61,7 @@
     ) {
       changeX *= -1
     }
+
     //ボールの座標を変える
     context.beginPath()
     if (y + changeY >= 300 || y + changeY <= 0) {
