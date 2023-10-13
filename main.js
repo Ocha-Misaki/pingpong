@@ -25,26 +25,16 @@
       this.r = 10
       this.changeX = 10
       this.changeY = 10
-      this.hitCount = 0
     }
     update() {
-      if (this.x + this.changeX >= 300 || this.x + this.changeX <= 0) {
-        this.changeX *= -1
-      }
       this.x += this.changeX
-      if (this.y + this.changeY >= 300 || this.y + this.changeY <= 0) {
-        this.changeY *= -1
-      }
       this.y += this.changeY
     }
-    countScore() {
-      if (this.x + this.changeX >= 300 || this.x + this.changeX <= 0) {
-        this.hitCount++
-      }
-      if (this.y + this.changeY >= 300 || this.y + this.changeY <= 0) {
-        this.hitCount++
-      }
-      return this.hitCount
+    changeDirectionX() {
+      this.changeX *= -1
+    }
+    changeDirectionY() {
+      this.changeY *= -1
     }
     draw() {
       this.context.beginPath()
@@ -66,38 +56,13 @@
       this.context = this.canvas.getContext("2d")
       this.width = 100
       this.height = 15
-      this.ptStart = new Point(105, 280)
+      this.ptStart = new Point(105, 285)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
       )
-      this.init()
     }
-    init() {
-      document.addEventListener("keydown", (e) => {
-        switch (e.keyCode) {
-          case 37: //左
-            if (this.ptStart.x < 10 || this.ptEnd.x < 10) {
-              return
-            }
-            this.ptStart.x -= 20
-            this.ptEnd.x -= 20
-            this.draw()
-            break
-          case 39: //右
-            if (
-              this.ptStart.x > canvas.width - 10 ||
-              this.ptEnd.x > canvas.width - 10
-            ) {
-              return
-            }
-            this.ptStart.x += 20
-            this.ptEnd.x += 20
-            this.draw()
-            break
-        }
-      })
-    }
+
     isHit(ball) {
       if (
         ball.x + ball.changeX > this.ptStart.x &&
@@ -109,6 +74,24 @@
       } else {
         return false
       }
+    }
+    moveLeft() {
+      if (this.ptStart.x - 20 <= 0) {
+        this.ptStart.x = 0
+        this.ptEnd.x = this.width
+        return
+      }
+      this.ptStart.x -= 20
+      this.ptEnd.x -= 20
+    }
+    moveRight() {
+      if (this.ptEnd.x + 20 >= canvas.width) {
+        this.ptEnd.x = canvas.width
+        this.ptStart.x = this.ptEnd.x - this.width
+        return
+      }
+      this.ptStart.x += 20
+      this.ptEnd.x += 20
     }
     draw() {
       this.context.fillStyle = "white"
@@ -132,6 +115,25 @@
       this.width = 300
       this.height = 300
       this.intervalId
+      this.hitCount = 0
+      this.gameOver = false
+      this.init()
+    }
+    init() {
+      document.addEventListener("keydown", (e) => {
+        if (this.gameOver == true) {
+          return
+        }
+        switch (e.keyCode) {
+          case 37: //左
+            this.bar.moveLeft()
+            break
+          case 39: //右
+            this.bar.moveRight()
+            break
+        }
+        this.bar.draw()
+      })
     }
     set() {
       this.intervalId = setInterval(() => {
@@ -145,7 +147,23 @@
         this.ball.changeY *= -1
       }
       this.ball.update()
-      score.textContent = this.ball.countScore()
+      this.isHit()
+      score.textContent = this.hitCount
+    }
+    isHit() {
+      if (this.ball.x > canvas.width || this.ball.x < 0) {
+        this.ball.changeDirectionX()
+        this.hitCount++
+      }
+      if (this.ball.y < 0) {
+        this.ball.changeDirectionY()
+        this.hitCount++
+      }
+      if (this.ball.y > canvas.height) {
+        this.gameOver = true
+        //ballを止める
+        clearInterval(this.intervalId)
+      }
     }
     draw() {
       this.context.fillStyle = "black"
