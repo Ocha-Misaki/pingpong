@@ -5,6 +5,15 @@
   canvas.width = 300
   canvas.height = 300
 
+  const rand = (min, max) => {
+    //もしminとmaxの関係が逆に渡されていた時のバリデーション
+    if (max < min) {
+      copyMin = min
+      max = copyMin
+      min = max
+    }
+    return Math.floor(Math.random() * (max - min) + min)
+  }
   class Ball {
     constructor(_x, _y) {
       this.canvas = document.getElementById("canvasId")
@@ -45,7 +54,7 @@
       this.context = this.canvas.getContext("2d")
       this.width = 100
       this.height = 15
-      this.ptStart = new Point(100, 260)
+      this.ptStart = new Point(105, 280)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
@@ -104,7 +113,9 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      this.ball = new Ball(0, 75) //決めうちの値を後で修正
+      let ballX = rand(0, 300)
+      let ballY = rand(0, 150)
+      this.ball = new Ball(ballX, ballY)
       this.bar = new Bar()
       this.width = 300
       this.height = 300
