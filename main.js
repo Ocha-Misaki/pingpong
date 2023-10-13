@@ -33,16 +33,16 @@
     }
   }
 
+  class Point {
+    constructor(_x, _y) {
+      this.x = _x
+      this.y = _y
+    }
+  }
   class Bar {
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      class Point {
-        constructor(_x, _y) {
-          this.x = _x
-          this.y = _y
-        }
-      }
       this.width = 100
       this.height = 15
       this.ptStart = new Point(100, 260)
@@ -50,16 +50,28 @@
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
       )
+      this.init()
     }
-    move() {
+    init() {
       document.addEventListener("keydown", (e) => {
         switch (e.keyCode) {
           case 37: //左
-            this.ptStart.x += 10
+            if (this.ptStart.x < 10 || this.ptEnd.x < 10) {
+              return
+            }
+            this.ptStart.x -= 20
+            this.ptEnd.x -= 20
             this.draw()
             break
           case 39: //右
-            this.ptStart.x -= 10
+            if (
+              this.ptStart.x > canvas.width - 10 ||
+              this.ptEnd.x > canvas.width - 10
+            ) {
+              return
+            }
+            this.ptStart.x += 20
+            this.ptEnd.x += 20
             this.draw()
             break
         }
@@ -121,5 +133,4 @@
 
   const board = new Board()
   board.set()
-  // board.draw()
 }
