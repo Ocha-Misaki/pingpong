@@ -1,9 +1,11 @@
 "use strict"
 {
   const canvas = document.getElementById("canvasId")
-
   canvas.width = 300
   canvas.height = 300
+  const score = document.createElement("div")
+  score.textContent = 0
+  document.body.appendChild(score)
 
   const rand = (min, max) => {
     //もしminとmaxの関係が逆に渡されていた時のバリデーション
@@ -23,16 +25,26 @@
       this.r = 10
       this.changeX = 10
       this.changeY = 10
+      this.hitCount = 0
     }
     update() {
-      if (this.y + this.changeY >= 300 || this.y + this.changeY <= 0) {
-        this.changeY *= -1
-      }
-      this.y += this.changeY
       if (this.x + this.changeX >= 300 || this.x + this.changeX <= 0) {
         this.changeX *= -1
       }
       this.x += this.changeX
+      if (this.y + this.changeY >= 300 || this.y + this.changeY <= 0) {
+        this.changeY *= -1
+      }
+      this.y += this.changeY
+    }
+    countScore() {
+      if (this.x + this.changeX >= 300 || this.x + this.changeX <= 0) {
+        this.hitCount++
+      }
+      if (this.y + this.changeY >= 300 || this.y + this.changeY <= 0) {
+        this.hitCount++
+      }
+      return this.hitCount
     }
     draw() {
       this.context.beginPath()
@@ -133,6 +145,7 @@
         this.ball.changeY *= -1
       }
       this.ball.update()
+      score.textContent = this.ball.countScore()
     }
     draw() {
       this.context.fillStyle = "black"
