@@ -8,7 +8,6 @@
   document.body.appendChild(score)
 
   const rand = (min, max) => {
-    //もしminとmaxの関係が逆に渡されていた時のバリデーション
     if (max < min) {
       copyMin = min
       max = copyMin
@@ -108,13 +107,14 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      let ballX = rand(0, 300)
-      let ballY = rand(0, 150)
+      let ballX = rand(0, canvas.width)
+      let ballY = rand(0, canvas.height / 2)
       this.ball = new Ball(ballX, ballY)
       this.bar = new Bar()
       this.width = 300
       this.height = 300
       this.intervalId
+      this.speed = 100
       this.hitCount = 0
       this.gameOver = false
       this.init()
@@ -137,17 +137,24 @@
     }
     set() {
       this.intervalId = setInterval(() => {
+        if (this.hitCount > 10) {
+          this.speed = 50
+          clearInterval(this.intervalId)
+          this.set()
+        }
+
         this.update()
         this.draw()
-      }, 100)
+      }, this.speed)
     }
     update() {
       //barの判定
-      if (this.bar.isHit(this.ball) == true) {
+      if (this.bar.isHit(this.ball) === true) {
         this.ball.changeY *= -1
       }
       this.ball.update()
       this.isHit()
+      this.adjustAngle()
       score.textContent = this.hitCount
     }
     isHit() {
@@ -161,10 +168,10 @@
       }
       if (this.ball.y > canvas.height) {
         this.gameOver = true
-        //ballを止める
         clearInterval(this.intervalId)
       }
     }
+
     draw() {
       this.context.fillStyle = "black"
       this.context.fillRect(0, 0, this.width, this.height)
