@@ -171,7 +171,15 @@
         clearInterval(this.intervalId)
       }
     }
-
+    adjustAngle() {
+      document.addEventListener("keydown", (e) => {
+        if (this.bar.isHit(this.ball) == true && e.keyCode == 39) {
+          this.ball.changeY = 5
+        } else if (this.bar.isHit(this.ball) == true && e.keyCode == 37) {
+          this.ball.changeY = 15
+        }
+      })
+    }
     draw() {
       this.context.fillStyle = "black"
       this.context.fillRect(0, 0, this.width, this.height)
