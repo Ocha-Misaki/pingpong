@@ -4,11 +4,11 @@
   canvas.width = 300
   canvas.height = 300
   const score = document.createElement("div")
-  score.textContent = "score: 0"
+  score.textContent = "score🏓: 0"
   document.body.appendChild(score)
-  // const HP = document.createElement("div")
-  // HP.textContent = `HP: 3`
-  // document.body.appendChild(HP)
+  const HP = document.createElement("div")
+  HP.textContent = "HP🩷: 3"
+  document.body.appendChild(HP)
 
   //引数の範囲でランダムな数を返す関数
   const rand = (min, max) => {
@@ -125,6 +125,7 @@
       this.speed = 15
       this.score = 0
       this.pressedKey = undefined
+      this.HitPoint = 3
       this.gameOver = false
       this.init()
     }
@@ -165,7 +166,7 @@
           this.ball.speedUp()
         }
       }
-      score.textContent = `score:${this.score}`
+      score.textContent = `score🏓:${this.score}`
     }
     isHit() {
       let count = this.score
@@ -178,9 +179,14 @@
         this.score++
       }
       if (this.ball.y > canvas.height) {
-        this.gameOver = true
-        this.score = 0
+        const count = this.HitPoint
+        this.HitPoint--
         clearInterval(this.intervalId)
+        this.restart(count)
+      }
+      HP.textContent = `HP🩷: ${this.HitPoint}`
+      if (this.HitPoint == 0) {
+        this.gameOver = true
       }
       if (count !== this.score) {
         return true
@@ -224,18 +230,24 @@
       })
     }
     KeyDown(e) {
-      if (e.keyCode == 39) {
-        return (this.pressedKey = "left")
-      } else if (e.keyCode == 37) {
-        return (this.pressedKey = "right")
+      if (e.keyCode == 37) {
+        this.pressedKey = "left"
+      } else if (e.keyCode == 39) {
+        this.pressedKey = "right"
       }
     }
     KeyUp() {
       document.addEventListener("keyup", (e) => {
-        if (e.keyCode == 39 || e.keyCode == 37) {
-          return (this.pressedKey = undefined)
+        if (e.keyCode == 37 || e.keyCode == 39) {
+          this.pressedKey = undefined
         }
       })
+    }
+    restart(count) {
+      //ゲームリスタート処理
+      if (count !== this.HitPoint) {
+        this.score = 0
+      }
     }
     draw() {
       this.context.fillStyle = "black"
