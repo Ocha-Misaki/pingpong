@@ -115,9 +115,9 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      let ballX = rand(0, canvas.width)
-      let ballY = rand(0, canvas.height / 2)
-      this.ball = new Ball(ballX, ballY)
+      this.ballX = rand(0, canvas.width)
+      this.ballY = rand(0, canvas.height / 2)
+      this.ball = new Ball(this.ballX, this.ballY)
       this.bar = new Bar()
       this.width = 300
       this.height = 300
@@ -186,6 +186,7 @@
       }
       HP.textContent = `HP🩷: ${this.HitPoint}`
       if (this.HitPoint == 0) {
+        clearInterval(this.intervalId)
         this.gameOver = true
       }
       if (count !== this.score) {
@@ -247,6 +248,10 @@
       //ゲームリスタート処理
       if (count !== this.HitPoint) {
         this.score = 0
+        this.ballX = rand(0, canvas.width)
+        this.ballY = rand(0, canvas.height / 2)
+        this.ball = new Ball(this.ballX, this.ballY)
+        this.set()
       }
     }
     draw() {
