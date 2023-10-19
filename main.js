@@ -64,7 +64,7 @@
       this.context = this.canvas.getContext("2d")
       this.width = 100
       this.height = 15
-      this.ptStart = new Point(105, 280)
+      this.ptStart = new Point(105, 285)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
@@ -159,17 +159,19 @@
         // changeY を変えることで反射角を調整している
         const absX = Math.abs(this.ball.changeX)
         switch (this.pressedKey) {
-          case 'left':
-            this.ball.changeY = this.ball.changeX > 0 ? absX*0.8 : absX*1.2 * -1
-            break;
-          
-          case 'right':  
-            this.ball.changeY = this.ball.changeX > 0 ? absX*1.2 : absX*0.8 *-1
-            break;
-        
-          default:
+          case "left":
+            this.ball.changeY =
+              this.ball.changeX > 0 ? absX * 0.8 : absX * 1.2 * -1
+            break
+
+          case "right":
+            this.ball.changeY =
+              this.ball.changeX > 0 ? absX * 1.2 : absX * 0.8 * -1
+            break
+
+          case undefined:
             this.ball.changeY = this.ball.changeX > 0 ? absX : absX * -1
-            break;
+            break
         }
         this.ball.changeDirectionY()
       }
@@ -201,6 +203,7 @@
       HP.textContent = `HP🩷: ${this.HitPoint}`
       if (this.HitPoint == 0) {
         this.gameOver = true
+        clearInterval(this.intervalId)
       }
       if (count !== this.score) {
         return true
@@ -223,7 +226,12 @@
     restart(count) {
       //ゲームリスタート処理
       if (count !== this.HitPoint) {
-        this.score = 0
+        //ボールの位置の再定義
+        this.ballX = rand(0, canvas.width)
+        this.ballY = rand(0, canvas.height / 2)
+        this.ball = new Ball(this.ballX, this.ballY)
+        this.bar = new Bar()
+        this.set()
       }
     }
     draw() {
