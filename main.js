@@ -4,11 +4,14 @@
   canvas.width = 300
   canvas.height = 300
   const score = document.createElement("div")
-  score.textContent = 0
+  const HP = document.createElement("div")
+  score.textContent = `score: 0`
+  HP.textContent = `HP: 3`
   document.body.appendChild(score)
+  document.body.appendChild(HP)
 
+  //引数の範囲でランダムな数を返す関数
   const rand = (min, max) => {
-    //もしminとmaxの関係が逆に渡されていた時のバリデーション
     if (max < min) {
       copyMin = min
       max = copyMin
@@ -50,6 +53,7 @@
       this.y = _y
     }
   }
+
   class Bar {
     constructor() {
       this.canvas = document.getElementById("canvasId")
@@ -62,7 +66,6 @@
         this.ptStart.y + this.height
       )
     }
-
     isHit(ball) {
       if (
         ball.x + ball.changeX > this.ptStart.x &&
@@ -108,14 +111,16 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      let ballX = rand(0, 300)
-      let ballY = rand(0, 150)
+      let ballX = rand(0, canvas.width)
+      let ballY = rand(0, canvas.height / 2)
       this.ball = new Ball(ballX, ballY)
       this.bar = new Bar()
       this.width = 300
       this.height = 300
       this.intervalId
+      this.speed = 100
       this.hitCount = 0
+      this.HP = 3
       this.gameOver = false
       this.init()
     }
@@ -137,18 +142,29 @@
     }
     set() {
       this.intervalId = setInterval(() => {
+        if (this.hitCount > 10) {
+          this.speed = 60
+          clearInterval(this.intervalId)
+          this.set()
+        }
         this.update()
         this.draw()
-      }, 100)
+      }, this.speed)
     }
     update() {
       //barの判定
-      if (this.bar.isHit(this.ball) == true) {
+      if (this.bar.isHit(this.ball) === true) {
         this.ball.changeY *= -1
+      }
+      if (HP == 0) {
+        clearInterval(this.intervalId)
+        alert("game over")
       }
       this.ball.update()
       this.isHit()
-      score.textContent = this.hitCount
+      this.adjustAngle()
+      score.textContent = `score:${this.hitCount}`
+      HP.textContent = `HP:${this.HP}`
     }
     isHit() {
       if (this.ball.x > canvas.width || this.ball.x < 0) {
@@ -160,10 +176,19 @@
         this.hitCount++
       }
       if (this.ball.y > canvas.height) {
-        this.gameOver = true
-        //ballを止める
+        this.HP--
+        this.hitCount = 0
         clearInterval(this.intervalId)
       }
+    }
+    adjustAngle() {
+      document.addEventListener("keydown", (e) => {
+        if (this.bar.isHit(this.ball) == true && e.keyCode == 39) {
+          this.ball.changeY = 5
+        } else if (this.bar.isHit(this.ball) == true && e.keyCode == 37) {
+          this.ball.changeY = 15
+        }
+      })
     }
     draw() {
       this.context.fillStyle = "black"
