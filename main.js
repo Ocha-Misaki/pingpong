@@ -29,6 +29,12 @@
       this.changeX = 1
       this.changeY = 1
     }
+    get right() {
+      return this.x + this.r
+    }
+    get left() {
+      return this.x - this.r
+    }
     update() {
       this.x += this.changeX
       this.y += this.changeY
@@ -72,10 +78,11 @@
     }
     isHit(ball) {
       if (
-        ball.x + ball.changeX > this.ptStart.x &&
-        ball.x + ball.changeX < this.ptEnd.x &&
-        ball.y + ball.changeY > this.ptStart.y &&
-        ball.y + ball.changeY < this.ptEnd.y
+        // x,yはボールの中心座標なので、半径を考慮した判定をする
+        ball.right + ball.changeX > this.ptStart.x &&
+        ball.left + ball.changeX < this.ptEnd.x &&
+        ball.y + ball.changeY > this.ptStart.y
+        // ball.y + ball.changeY < this.ptEnd.y // Y方向の判定は１つ目のif文で判定できる
       ) {
         return true
       } else {
