@@ -4,10 +4,10 @@
   canvas.width = 300
   canvas.height = 300
   const score = document.createElement("div")
-  score.textContent = "score🏓: 0"
+  score.textContent = "SCORE  0"
   document.body.appendChild(score)
   const HP = document.createElement("div")
-  HP.textContent = "HP🩷: 3"
+  HP.textContent = "🩷🩷🩷"
   document.body.appendChild(HP)
 
   //引数の範囲でランダムな数を返す関数
@@ -182,7 +182,7 @@
           this.ball.speedUp()
         }
       }
-      score.textContent = `score🏓:${this.score} x=${this.ball.changeX}:y=${this.ball.changeY}`
+      score.textContent = `SCORE  ${this.score}`
     }
     isHit() {
       let count = this.score
@@ -200,10 +200,10 @@
         clearInterval(this.intervalId)
         this.restart(count)
       }
-      HP.textContent = `HP🩷: ${this.HitPoint}`
       if (this.HitPoint == 0) {
         this.gameOver = true
         clearInterval(this.intervalId)
+        HP.textContent = `GAME OVER`
       }
       if (count !== this.score) {
         return true
@@ -225,6 +225,10 @@
     }
     restart(count) {
       //ゲームリスタート処理
+      HP.textContent = ""
+      for (let i = this.HitPoint; i > 0; i--) {
+        HP.textContent += "🩷"
+      }
       if (count !== this.HitPoint) {
         //ボールの位置の再定義
         this.ballX = rand(0, canvas.width)
