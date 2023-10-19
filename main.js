@@ -176,8 +176,8 @@
               this.ball.changeX > 0 ? absX * 1.2 : absX * 0.8 * -1
             break
 
-          case "undefined":
-            this.ball.changeY = this.ball.changeX > 0 ? absX : absX * -1
+          default:
+            this.ball.changeY = absX
             break
         }
         this.ball.changeDirectionY()
@@ -242,7 +242,6 @@
         this.ballX = rand(0, canvas.width)
         this.ballY = rand(0, canvas.height / 2)
         this.ball = new Ball(this.ballX, this.ballY)
-        this.bar = new Bar()
         this.set()
       }
     }
