@@ -169,7 +169,7 @@
               this.ball.changeX > 0 ? absX * 1.2 : absX * 0.8 * -1
             break
 
-          case undefined:
+          case "undefined":
             this.ball.changeY = this.ball.changeX > 0 ? absX : absX * -1
             break
         }
@@ -229,6 +229,7 @@
       for (let i = this.HitPoint; i > 0; i--) {
         HP.textContent += "🩷"
       }
+      this.score = 0
       if (count !== this.HitPoint) {
         //ボールの位置の再定義
         this.ballX = rand(0, canvas.width)
