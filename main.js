@@ -167,13 +167,11 @@
         const absX = Math.abs(this.ball.changeX)
         switch (this.pressedKey) {
           case "left":
-            this.ball.changeY =
-              this.ball.changeX > 0 ? absX * 0.8 : absX * 1.2 * -1
+            this.ball.changeY = this.ball.changeX > 0 ? absX * 0.8 : absX * 1.2
             break
 
           case "right":
-            this.ball.changeY =
-              this.ball.changeX > 0 ? absX * 1.2 : absX * 0.8 * -1
+            this.ball.changeY = this.ball.changeX > 0 ? absX * 1.2 : absX * 0.8
             break
 
           default:
