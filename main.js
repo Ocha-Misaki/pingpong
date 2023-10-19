@@ -4,11 +4,11 @@
   canvas.width = 300
   canvas.height = 300
   const score = document.createElement("div")
-  score.textContent = "score: 0"
+  score.textContent = "score🏓: 0"
   document.body.appendChild(score)
-  // const HP = document.createElement("div")
-  // HP.textContent = `HP: 3`
-  // document.body.appendChild(HP)
+  const HP = document.createElement("div")
+  HP.textContent = "HP🩷: 3"
+  document.body.appendChild(HP)
 
   //引数の範囲でランダムな数を返す関数
   const rand = (min, max) => {
@@ -64,7 +64,7 @@
       this.context = this.canvas.getContext("2d")
       this.width = 100
       this.height = 15
-      this.ptStart = new Point(105, 285)
+      this.ptStart = new Point(105, 280)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
@@ -115,9 +115,9 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      let ballX = rand(0, canvas.width)
-      let ballY = rand(0, canvas.height / 2)
-      this.ball = new Ball(ballX, ballY)
+      this.ballX = rand(0, canvas.width)
+      this.ballY = rand(0, canvas.height / 2)
+      this.ball = new Ball(this.ballX, this.ballY)
       this.bar = new Bar()
       this.width = 300
       this.height = 300
@@ -125,6 +125,7 @@
       this.speed = 15
       this.score = 0
       this.pressedKey = undefined
+      this.HitPoint = 3
       this.gameOver = false
       this.init()
     }
@@ -145,7 +146,6 @@
         this.KeyUp()
         this.bar.draw()
       })
-      this.adjustAngle()
     }
     set() {
       this.intervalId = setInterval(() => {
@@ -156,6 +156,21 @@
     update() {
       //barの判定
       if (this.bar.isHit(this.ball) === true) {
+        // changeY を変えることで反射角を調整している
+        const absX = Math.abs(this.ball.changeX)
+        switch (this.pressedKey) {
+          case 'left':
+            this.ball.changeY = this.ball.changeX > 0 ? absX*0.8 : absX*1.2 * -1
+            break;
+          
+          case 'right':  
+            this.ball.changeY = this.ball.changeX > 0 ? absX*1.2 : absX*0.8 *-1
+            break;
+        
+          default:
+            this.ball.changeY = this.ball.changeX > 0 ? absX : absX * -1
+            break;
+        }
         this.ball.changeDirectionY()
       }
       this.ball.update()
@@ -165,7 +180,7 @@
           this.ball.speedUp()
         }
       }
-      score.textContent = `score:${this.score}`
+      score.textContent = `score🏓:${this.score} x=${this.ball.changeX}:y=${this.ball.changeY}`
     }
     isHit() {
       let count = this.score
@@ -178,64 +193,38 @@
         this.score++
       }
       if (this.ball.y > canvas.height) {
-        this.gameOver = true
-        this.score = 0
+        const count = this.HitPoint
+        this.HitPoint--
         clearInterval(this.intervalId)
+        this.restart(count)
+      }
+      HP.textContent = `HP🩷: ${this.HitPoint}`
+      if (this.HitPoint == 0) {
+        this.gameOver = true
       }
       if (count !== this.score) {
         return true
       }
     }
-    adjustAngle() {
-      document.addEventListener("keydown", (e) => {
-        //ボールが左から右に移動し、バーが左に動いている時（跳ね返りは鈍角）
-        if (
-          this.bar.isHit(this.ball) == true &&
-          this.ball.changeX > 0 &&
-          this.pressedKey == "left"
-        ) {
-          this.ball.changeX = 1
-          this.ball.changeY = 1
-        } //ボールが左から右に移動し、バーが右に動いている時（跳ね返りは鋭角）
-        else if (
-          this.bar.isHit(this.ball) == true &&
-          this.ball.changeX > 0 &&
-          this.pressedKey == "right"
-        ) {
-          this.ball.changeX = 3
-          this.ball.changeY = 3
-        } //ボールが右から右に移動し、バーが左に動いている時（跳ね返りは鈍角）
-        else if (
-          this.bar.isHit(this.ball) == true &&
-          this.ball.changeX < 0 &&
-          this.pressedKey == "right"
-        ) {
-          this.ball.changeX = 1
-          this.ball.changeY = 1
-        } //ボールが右から左に移動し、バーが左に動いている時（跳ね返りは鋭角）
-        else if (
-          this.bar.isHit(this.ball) == true &&
-          this.ball.changeX < 0 &&
-          this.pressedKey == "left"
-        ) {
-          this.ball.changeX = 3
-          this.ball.changeY = 3
-        }
-      })
-    }
     KeyDown(e) {
-      if (e.keyCode == 39) {
-        return (this.pressedKey = "left")
-      } else if (e.keyCode == 37) {
-        return (this.pressedKey = "right")
+      if (e.keyCode == 37) {
+        this.pressedKey = "left"
+      } else if (e.keyCode == 39) {
+        this.pressedKey = "right"
       }
     }
     KeyUp() {
       document.addEventListener("keyup", (e) => {
-        if (e.keyCode == 39 || e.keyCode == 37) {
-          return (this.pressedKey = undefined)
+        if (e.keyCode == 37 || e.keyCode == 39) {
+          this.pressedKey = undefined
         }
       })
+    }
+    restart(count) {
+      //ゲームリスタート処理
+      if (count !== this.HitPoint) {
+        this.score = 0
+      }
     }
     draw() {
       this.context.fillStyle = "black"
