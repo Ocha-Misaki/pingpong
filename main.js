@@ -122,19 +122,21 @@
     constructor(_x, _y) {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      this.width = 55
+      this.width = 50
       this.height = 15
       this.ptStart = new Point(_x, _y)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
       )
+      this.visible = true
     }
     isHit(ball) {
       if (
         ball.right + ball.changeX > this.ptStart.x &&
         ball.left + ball.changeX < this.ptEnd.x &&
-        ball.y + ball.changeY > this.ptStart.y
+        ball.y + ball.changeY > this.ptStart.y &&
+        ball.y + ball.changeY < this.ptEnd.y
       ) {
         return true
       } else {
@@ -159,6 +161,8 @@
       this.ballY = rand(0, canvas.height / 2)
       this.ball = new Ball(this.ballX, this.ballY)
       this.bar = new Bar()
+      //3つのブロックが均等に配置される
+      //canvasの幅 = 300,ブロックの幅＝50, 余白=20, 列数＝4
       this.blocks = [
         new Block(20, 10),
         new Block(20, 35),
@@ -177,7 +181,7 @@
       this.speed = 15
       this.score = 0
       this.pressedKey = undefined
-      this.life = Array(5).fill("🩷")
+      this.life = Array(10).fill("🩷")
       this.gameOver = false
       this.init()
     }
@@ -201,10 +205,10 @@
       })
     }
     set() {
-      // this.intervalId = setInterval(() => {
-      this.update()
-      this.draw()
-      // }, this.speed)
+      this.intervalId = setInterval(() => {
+        this.update()
+        this.draw()
+      }, this.speed)
     }
     update() {
       //barの判定
@@ -234,6 +238,14 @@
         }
       }
       score.textContent = `SCORE  ${this.score}`
+      //blockのヒット判定
+      //ヒットしたらvisibleのフラグをかえ、ballの座標を変える
+      this.blocks.forEach((block) => {
+        if (block.isHit(this.ball) == true) {
+          block.visible = false
+          this.ball.changeDirectionY()
+        }
+      })
     }
     isHit() {
       let count = this.score
@@ -291,9 +303,11 @@
       this.ball.draw()
       this.bar.draw()
       //ここでブロックの描画をする
-      this.blocks.forEach((block) => {
-        block.draw()
-      })
+      this.blocks
+        .filter((block) => block.visible == true)
+        .forEach((block) => {
+          block.draw()
+        })
     }
   }
 
