@@ -70,7 +70,7 @@
       this.context = this.canvas.getContext("2d")
       this.width = 100
       this.height = 15
-      this.ptStart = new Point(105, 285)
+      this.ptStart = new Point(105, 280)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
@@ -118,6 +118,39 @@
     }
   }
 
+  class Block {
+    constructor(_x, _y) {
+      this.canvas = document.getElementById("canvasId")
+      this.context = this.canvas.getContext("2d")
+      this.width = 55
+      this.height = 15
+      this.ptStart = new Point(_x, _y)
+      this.ptEnd = new Point(
+        this.ptStart.x + this.width,
+        this.ptStart.y + this.height
+      )
+    }
+    isHit(ball) {
+      if (
+        ball.right + ball.changeX > this.ptStart.x &&
+        ball.left + ball.changeX < this.ptEnd.x &&
+        ball.y + ball.changeY > this.ptStart.y
+      ) {
+        return true
+      } else {
+        return false
+      }
+    }
+    draw() {
+      this.context.fillStyle = "white"
+      this.context.fillRect(
+        this.ptStart.x,
+        this.ptStart.y,
+        this.width,
+        this.height
+      )
+    }
+  }
   class Board {
     constructor() {
       this.canvas = document.getElementById("canvasId")
@@ -126,6 +159,18 @@
       this.ballY = rand(0, canvas.height / 2)
       this.ball = new Ball(this.ballX, this.ballY)
       this.bar = new Bar()
+      this.blocks = [
+        new Block(20, 10),
+        new Block(20, 35),
+        new Block(20, 60),
+        new Block(20, 85),
+        new Block(90, 10),
+        new Block(90, 35),
+        new Block(90, 60),
+        new Block(90, 85),
+        new Block(160, 10),
+        new Block(230, 10),
+      ]
       this.width = 300
       this.height = 300
       this.intervalId
@@ -138,7 +183,6 @@
     }
     init() {
       HP.textContent = this.life.join("")
-
       document.addEventListener("keydown", (e) => {
         if (this.gameOver == true) {
           return
@@ -157,10 +201,10 @@
       })
     }
     set() {
-      this.intervalId = setInterval(() => {
-        this.update()
-        this.draw()
-      }, this.speed)
+      // this.intervalId = setInterval(() => {
+      this.update()
+      this.draw()
+      // }, this.speed)
     }
     update() {
       //barの判定
@@ -246,6 +290,10 @@
       this.context.fillRect(0, 0, this.width, this.height)
       this.ball.draw()
       this.bar.draw()
+      //ここでブロックの描画をする
+      this.blocks.forEach((block) => {
+        block.draw()
+      })
     }
   }
 
