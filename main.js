@@ -7,7 +7,7 @@
   score.textContent = "SCORE  0"
   document.body.appendChild(score)
   const HP = document.createElement("div")
-  HP.textContent = "🩷🩷🩷"
+  HP.textContent = ""
   document.body.appendChild(HP)
 
   //引数の範囲でランダムな数を返す関数
@@ -132,11 +132,13 @@
       this.speed = 15
       this.score = 0
       this.pressedKey = undefined
-      this.HitPoint = 3
+      this.life = Array(5).fill("🩷")
       this.gameOver = false
       this.init()
     }
     init() {
+      HP.textContent = this.life.join("")
+
       document.addEventListener("keydown", (e) => {
         if (this.gameOver == true) {
           return
@@ -200,12 +202,11 @@
         this.score++
       }
       if (this.ball.y > canvas.height) {
-        const count = this.HitPoint
-        this.HitPoint--
+        this.life.pop()
         clearInterval(this.intervalId)
-        this.restart(count)
+        this.restart()
       }
-      if (this.HitPoint == 0) {
+      if (this.life.length == 0) {
         this.gameOver = true
         clearInterval(this.intervalId)
         HP.textContent = `GAME OVER`
@@ -228,14 +229,11 @@
         }
       })
     }
-    restart(count) {
+    restart() {
       //ゲームリスタート処理
-      HP.textContent = ""
-      for (let i = this.HitPoint; i > 0; i--) {
-        HP.textContent += "🩷"
-      }
+      HP.textContent = this.life.join("")
       this.score = 0
-      if (count !== this.HitPoint) {
+      if (this.life.length) {
         //ボールの位置の再定義
         this.ballX = rand(0, canvas.width)
         this.ballY = rand(0, canvas.height / 2)
