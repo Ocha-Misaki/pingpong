@@ -4,10 +4,10 @@
   canvas.width = 300
   canvas.height = 300
   const score = document.createElement("div")
-  score.textContent = "score🏓: 0"
+  score.textContent = "SCORE  0"
   document.body.appendChild(score)
   const HP = document.createElement("div")
-  HP.textContent = "HP🩷: 3"
+  HP.textContent = ""
   document.body.appendChild(HP)
 
   //引数の範囲でランダムな数を返す関数
@@ -28,6 +28,12 @@
       this.r = 10
       this.changeX = 1
       this.changeY = 1
+    }
+    get right() {
+      return this.x + this.r
+    }
+    get left() {
+      return this.x - this.r
     }
     update() {
       this.x += this.changeX
@@ -64,7 +70,7 @@
       this.context = this.canvas.getContext("2d")
       this.width = 100
       this.height = 15
-      this.ptStart = new Point(105, 280)
+      this.ptStart = new Point(105, 285)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
         this.ptStart.y + this.height
@@ -72,10 +78,11 @@
     }
     isHit(ball) {
       if (
-        ball.x + ball.changeX > this.ptStart.x &&
-        ball.x + ball.changeX < this.ptEnd.x &&
-        ball.y + ball.changeY > this.ptStart.y &&
-        ball.y + ball.changeY < this.ptEnd.y
+        // x,yはボールの中心座標なので、半径を考慮した判定をする
+        ball.right + ball.changeX > this.ptStart.x &&
+        ball.left + ball.changeX < this.ptEnd.x &&
+        ball.y + ball.changeY > this.ptStart.y
+        // ball.y + ball.changeY < this.ptEnd.y // Y方向の判定は１つ目のif文で判定できる
       ) {
         return true
       } else {
@@ -125,11 +132,13 @@
       this.speed = 15
       this.score = 0
       this.pressedKey = undefined
-      this.HitPoint = 3
+      this.life = Array(5).fill("🩷")
       this.gameOver = false
       this.init()
     }
     init() {
+      HP.textContent = this.life.join("")
+
       document.addEventListener("keydown", (e) => {
         if (this.gameOver == true) {
           return
@@ -159,17 +168,17 @@
         // changeY を変えることで反射角を調整している
         const absX = Math.abs(this.ball.changeX)
         switch (this.pressedKey) {
-          case 'left':
-            this.ball.changeY = this.ball.changeX > 0 ? absX*0.8 : absX*1.2 * -1
-            break;
-          
-          case 'right':  
-            this.ball.changeY = this.ball.changeX > 0 ? absX*1.2 : absX*0.8 *-1
-            break;
-        
+          case "left":
+            this.ball.changeY = this.ball.changeX > 0 ? absX * 0.8 : absX * 1.2
+            break
+
+          case "right":
+            this.ball.changeY = this.ball.changeX > 0 ? absX * 1.2 : absX * 0.8
+            break
+
           default:
-            this.ball.changeY = this.ball.changeX > 0 ? absX : absX * -1
-            break;
+            this.ball.changeY = absX
+            break
         }
         this.ball.changeDirectionY()
       }
@@ -180,7 +189,7 @@
           this.ball.speedUp()
         }
       }
-      score.textContent = `score🏓:${this.score} x=${this.ball.changeX}:y=${this.ball.changeY}`
+      score.textContent = `SCORE  ${this.score}`
     }
     isHit() {
       let count = this.score
@@ -193,14 +202,14 @@
         this.score++
       }
       if (this.ball.y > canvas.height) {
-        const count = this.HitPoint
-        this.HitPoint--
+        this.life.pop()
         clearInterval(this.intervalId)
-        this.restart(count)
+        this.restart()
       }
-      HP.textContent = `HP🩷: ${this.HitPoint}`
-      if (this.HitPoint == 0) {
+      if (this.life.length == 0) {
         this.gameOver = true
+        clearInterval(this.intervalId)
+        HP.textContent = `GAME OVER`
       }
       if (count !== this.score) {
         return true
@@ -220,10 +229,16 @@
         }
       })
     }
-    restart(count) {
+    restart() {
       //ゲームリスタート処理
-      if (count !== this.HitPoint) {
-        this.score = 0
+      HP.textContent = this.life.join("")
+      this.score = 0
+      if (this.life.length) {
+        //ボールの位置の再定義
+        this.ballX = rand(0, canvas.width)
+        this.ballY = rand(0, canvas.height / 2)
+        this.ball = new Ball(this.ballX, this.ballY)
+        this.set()
       }
     }
     draw() {
