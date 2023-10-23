@@ -3,6 +3,9 @@
   const canvas = document.getElementById("canvasId")
   canvas.width = 300
   canvas.height = 300
+  const score = document.createElement("div")
+  score.textContent = "SCORE  0"
+  document.body.appendChild(score)
   const HP = document.createElement("div")
   HP.textContent = ""
   document.body.appendChild(HP)
@@ -115,42 +118,6 @@
     }
   }
 
-  class Block {
-    constructor(_x, _y) {
-      this.canvas = document.getElementById("canvasId")
-      this.context = this.canvas.getContext("2d")
-      this.width = 50
-      this.height = 15
-      this.ptStart = new Point(_x, _y)
-      this.ptEnd = new Point(
-        this.ptStart.x + this.width,
-        this.ptStart.y + this.height
-      )
-      this.visible = true
-      this.hit = false
-    }
-    isHit(ball) {
-      if (
-        ball.right + ball.changeX > this.ptStart.x &&
-        ball.left + ball.changeX < this.ptEnd.x &&
-        ball.y + ball.changeY > this.ptStart.y &&
-        ball.y + ball.changeY < this.ptEnd.y
-      ) {
-        return true
-      } else {
-        return false
-      }
-    }
-    draw() {
-      this.context.fillStyle = "white"
-      this.context.fillRect(
-        this.ptStart.x,
-        this.ptStart.y,
-        this.width,
-        this.height
-      )
-    }
-  }
   class Board {
     constructor() {
       this.canvas = document.getElementById("canvasId")
@@ -160,27 +127,13 @@
       this.ballX = this.bar.ptStart.x + this.bar.width / 2
       this.ballY = this.bar.ptStart.y
       this.ball = new Ball(this.ballX, this.ballY)
-      //3つのブロックが均等に配置される
-      //canvasの幅 = 300,ブロックの幅＝50, 余白=20, 列数＝4
-      this.blocks = [
-        new Block(20, 10),
-        new Block(20, 35),
-        new Block(20, 60),
-        new Block(20, 85),
-        new Block(90, 10),
-        new Block(90, 35),
-        new Block(90, 60),
-        new Block(90, 85),
-        new Block(160, 10),
-        new Block(230, 10),
-      ]
       this.width = 300
       this.height = 300
       this.intervalId
       this.speed = 15
       this.score = 0
       this.pressedKey = undefined
-      this.life = Array(3).fill("🩷")
+      this.life = Array(10).fill("🩷")
       this.gameOver = false
       this.init()
     }
@@ -236,25 +189,17 @@
           this.ball.speedUp()
         }
       }
-
-      //blockのヒット判定
-      this.blocks
-        .filter((block) => block.visible == true)
-        .forEach((block) => {
-          if (block.isHit(this.ball) == true) {
-            block.visible = false
-            this.score++
-            this.ball.changeDirectionY()
-          }
-        })
+      score.textContent = `SCORE  ${this.score}`
     }
     isHit() {
       let count = this.score
       if (this.ball.x > canvas.width || this.ball.x < 0) {
         this.ball.changeDirectionX()
+        this.score++
       }
       if (this.ball.y < 0) {
         this.ball.changeDirectionY()
+        this.score++
       }
       if (this.ball.y > canvas.height) {
         this.life.pop()
@@ -265,14 +210,6 @@
         this.gameOver = true
         clearInterval(this.intervalId)
         HP.textContent = `GAME OVER`
-      }
-      if (this.score == this.blocks.length) {
-        confirm("game clear!")
-        clearInterval(this.intervalId)
-        return
-      }
-      if (count !== this.score) {
-        return true
       }
     }
     KeyDown(e) {
@@ -292,6 +229,7 @@
     restart() {
       //ゲームリスタート処理
       HP.textContent = this.life.join("")
+      this.score = 0
       if (this.life.length) {
         //ボールの位置の再定義
         this.ballX = rand(0, canvas.width)
@@ -305,11 +243,6 @@
       this.context.fillRect(0, 0, this.width, this.height)
       this.ball.draw()
       this.bar.draw()
-      this.blocks
-        .filter((block) => block.visible == true)
-        .forEach((block) => {
-          block.draw()
-        })
     }
   }
 
