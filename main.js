@@ -116,11 +116,11 @@
   }
 
   class Block {
-    constructor(_x, _y) {
+    constructor(_x, _y, _width, _height) {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      this.width = 50
-      this.height = 15
+      this.width = _width
+      this.height = _height
       this.ptStart = new Point(_x, _y)
       this.ptEnd = new Point(
         this.ptStart.x + this.width,
@@ -155,27 +155,17 @@
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
-      // this.ballY = rand(0, canvas.height / 2)
       this.bar = new Bar()
+      let randomIndex = Math.floor(Math.random() * 5)
+      this.ballDirection = randomIndex % 2 == 0 ? 1 : -1
       this.ballX = this.bar.ptStart.x + this.bar.width / 2
       this.ballY = this.bar.ptStart.y
       this.ball = new Ball(this.ballX, this.ballY)
-      //3つのブロックが均等に配置される
-      //canvasの幅 = 300,ブロックの幅＝50, 余白=20, 列数＝4
-      this.blocks = [
-        new Block(20, 10),
-        new Block(20, 35),
-        new Block(20, 60),
-        new Block(20, 85),
-        new Block(90, 10),
-        new Block(90, 35),
-        new Block(90, 60),
-        new Block(90, 85),
-        new Block(160, 10),
-        new Block(230, 10),
-      ]
+      this.ball.changeX = this.ballDirection
       this.width = 300
       this.height = 300
+
+      this.blocks = this.createBlocks(8, 8)
       this.intervalId
       this.speed = 15
       this.score = 0
@@ -295,10 +285,38 @@
       if (this.life.length) {
         //ボールの位置の再定義
         this.ballX = rand(0, canvas.width)
-        this.ballY = rand(0, canvas.height / 2)
+        this.ballY = rand(canvas.height / 2, canvas.height)
         this.ball = new Ball(this.ballX, this.ballY)
+        this.ball.changeY = -1
         this.set()
       }
+    }
+    createBlocks(_col, _row) {
+      let blocks = []
+      let currentBlock = new Block(0, 0, 0, 0)
+      const blockRange = {
+        width: this.width / _col,
+        height: this.height / 2 / _row,
+      }
+      const margin = 5
+      const blockWidth = blockRange.width - margin * 2
+      const blockHeight = Math.min(15, blockRange.height - margin * 2)
+
+      for (let row = 0; row < _row; row++) {
+        currentBlock.y = row * blockRange.height
+        for (let col = 0; col < _col; col++) {
+          currentBlock.x = col * blockRange.width
+          blocks.push(
+            new Block(
+              currentBlock.x + margin,
+              currentBlock.y + margin,
+              blockWidth,
+              blockHeight
+            )
+          )
+        }
+      }
+      return blocks
     }
     draw() {
       this.context.fillStyle = "black"
