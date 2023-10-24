@@ -156,11 +156,11 @@
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
       this.bar = new Bar()
-      let randomIndex = Math.floor(Math.random() * 5)
-      this.ballDirection = randomIndex % 2 == 0 ? 1 : -1
       this.ballX = this.bar.ptStart.x + this.bar.width / 2
       this.ballY = this.bar.ptStart.y
       this.ball = new Ball(this.ballX, this.ballY)
+      let n = Math.floor(Math.random() * 5)
+      this.ballDirection = n % 2 == 0 ? 1 : -1
       this.ball.changeX = this.ballDirection
       this.width = 300
       this.height = 300
