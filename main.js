@@ -284,9 +284,12 @@
       HP.textContent = this.life.join("")
       if (this.life.length) {
         //ボールの位置の再定義
-        this.ballX = rand(0, canvas.width)
-        this.ballY = rand(canvas.height / 2, canvas.height)
+        this.ballX = this.bar.ptStart.x + this.bar.width / 2
+        this.ballY = this.bar.ptStart.y
         this.ball = new Ball(this.ballX, this.ballY)
+        let n = Math.floor(Math.random() * 5)
+        this.ballDirection = n % 2 == 0 ? 1 : -1
+        this.ball.changeX = this.ballDirection
         this.ball.changeY = -1
         this.set()
       }
