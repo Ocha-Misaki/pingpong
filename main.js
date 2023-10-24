@@ -7,15 +7,6 @@
   HP.textContent = ""
   document.body.appendChild(HP)
 
-  //引数の範囲でランダムな数を返す関数
-  const rand = (min, max) => {
-    if (max < min) {
-      copyMin = min
-      max = copyMin
-      min = max
-    }
-    return Math.floor(Math.random() * (max - min) + min)
-  }
   class Ball {
     constructor(_x, _y) {
       this.canvas = document.getElementById("canvasId")
@@ -116,7 +107,7 @@
   }
 
   class Block {
-    constructor(_x, _y, _width, _height) {
+    constructor(_x, _y, _width, _height, _color) {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
       this.width = _width
@@ -128,6 +119,7 @@
       )
       this.visible = true
       this.hit = false
+      this.color = _color
     }
     isHit(ball) {
       if (
@@ -142,7 +134,7 @@
       }
     }
     draw() {
-      this.context.fillStyle = "white"
+      this.context.fillStyle = this.color
       this.context.fillRect(
         this.ptStart.x,
         this.ptStart.y,
@@ -164,7 +156,6 @@
       this.ball.changeX = this.ballDirection
       this.width = 300
       this.height = 300
-
       this.blocks = this.createBlocks(8, 8)
       this.intervalId
       this.speed = 15
@@ -190,6 +181,19 @@
             break
         }
         this.KeyUp()
+        this.bar.draw()
+      })
+      //マウスイベント
+      document.addEventListener("mousemove", (e) => {
+        if (this.gameOver == true) {
+          return
+        }
+        if (e.clientX < this.bar.ptStart.x) {
+          this.bar.moveLeft()
+        }
+        if (e.clientX > this.bar.ptStart.x) {
+          this.bar.moveRight()
+        }
         this.bar.draw()
       })
     }
@@ -284,16 +288,19 @@
       HP.textContent = this.life.join("")
       if (this.life.length) {
         //ボールの位置の再定義
-        this.ballX = rand(0, canvas.width)
-        this.ballY = rand(canvas.height / 2, canvas.height)
+        this.ballX = this.bar.ptStart.x + this.bar.width / 2
+        this.ballY = this.bar.ptStart.y
         this.ball = new Ball(this.ballX, this.ballY)
+        let n = Math.floor(Math.random() * 5)
+        this.ballDirection = n % 2 == 0 ? 1 : -1
+        this.ball.changeX = this.ballDirection
         this.ball.changeY = -1
         this.set()
       }
     }
     createBlocks(_col, _row) {
       let blocks = []
-      let currentBlock = new Block(0, 0, 0, 0)
+      let currentBlock = new Block(0, 0, 0, 0, "#0000FF")
       const blockRange = {
         width: this.width / _col,
         height: this.height / 2 / _row,
@@ -304,6 +311,18 @@
 
       for (let row = 0; row < _row; row++) {
         currentBlock.y = row * blockRange.height
+        if (row == 0) {
+          currentBlock.color = "#0000FF"
+        }
+        if (row == 1) {
+          currentBlock.color = "#0066FF"
+        }
+        if (row == 2) {
+          currentBlock.color = "#5D99FF"
+        }
+        if (row == 3) {
+          currentBlock.color = "#A4C6FF"
+        }
         for (let col = 0; col < _col; col++) {
           currentBlock.x = col * blockRange.width
           blocks.push(
@@ -311,7 +330,8 @@
               currentBlock.x + margin,
               currentBlock.y + margin,
               blockWidth,
-              blockHeight
+              blockHeight,
+              currentBlock.color
             )
           )
         }
