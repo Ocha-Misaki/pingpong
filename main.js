@@ -183,6 +183,19 @@
         this.KeyUp()
         this.bar.draw()
       })
+      //マウスイベント
+      document.addEventListener("mousemove", (e) => {
+        if (this.gameOver == true) {
+          return
+        }
+        if (e.clientX < this.bar.ptStart.x) {
+          this.bar.moveLeft()
+        }
+        if (e.clientX > this.bar.ptStart.x) {
+          this.bar.moveRight()
+        }
+        this.bar.draw()
+      })
     }
     set() {
       this.intervalId = setInterval(() => {
