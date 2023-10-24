@@ -3,6 +3,9 @@
   const canvas = document.getElementById("canvasId")
   canvas.width = 300
   canvas.height = 300
+  const score = document.createElement("div")
+  score.textContent = "SCORE  0"
+  document.body.appendChild(score)
   const HP = document.createElement("div")
   HP.textContent = ""
   document.body.appendChild(HP)
@@ -115,62 +118,22 @@
     }
   }
 
-  class Block {
-    constructor(_x, _y, _width, _height) {
-      this.canvas = document.getElementById("canvasId")
-      this.context = this.canvas.getContext("2d")
-      this.width = _width
-      this.height = _height
-      this.ptStart = new Point(_x, _y)
-      this.ptEnd = new Point(
-        this.ptStart.x + this.width,
-        this.ptStart.y + this.height
-      )
-      this.visible = true
-      this.hit = false
-    }
-    isHit(ball) {
-      if (
-        ball.right + ball.changeX > this.ptStart.x &&
-        ball.left + ball.changeX < this.ptEnd.x &&
-        ball.y + ball.changeY > this.ptStart.y &&
-        ball.y + ball.changeY < this.ptEnd.y
-      ) {
-        return true
-      } else {
-        return false
-      }
-    }
-    draw() {
-      this.context.fillStyle = "white"
-      this.context.fillRect(
-        this.ptStart.x,
-        this.ptStart.y,
-        this.width,
-        this.height
-      )
-    }
-  }
   class Board {
     constructor() {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
+      // this.ballY = rand(0, canvas.height / 2)
       this.bar = new Bar()
       this.ballX = this.bar.ptStart.x + this.bar.width / 2
       this.ballY = this.bar.ptStart.y
       this.ball = new Ball(this.ballX, this.ballY)
-      let n = Math.floor(Math.random() * 5)
-      this.ballDirection = n % 2 == 0 ? 1 : -1
-      this.ball.changeX = this.ballDirection
       this.width = 300
       this.height = 300
-
-      this.blocks = this.createBlocks(8, 8)
       this.intervalId
       this.speed = 15
       this.score = 0
       this.pressedKey = undefined
-      this.life = Array(3).fill("🩷")
+      this.life = Array(10).fill("🩷")
       this.gameOver = false
       this.init()
     }
@@ -226,25 +189,17 @@
           this.ball.speedUp()
         }
       }
-
-      //blockのヒット判定
-      this.blocks
-        .filter((block) => block.visible == true)
-        .forEach((block) => {
-          if (block.isHit(this.ball) == true) {
-            block.visible = false
-            this.score++
-            this.ball.changeDirectionY()
-          }
-        })
+      score.textContent = `SCORE  ${this.score}`
     }
     isHit() {
       let count = this.score
       if (this.ball.x > canvas.width || this.ball.x < 0) {
         this.ball.changeDirectionX()
+        this.score++
       }
       if (this.ball.y < 0) {
         this.ball.changeDirectionY()
+        this.score++
       }
       if (this.ball.y > canvas.height) {
         this.life.pop()
@@ -255,14 +210,6 @@
         this.gameOver = true
         clearInterval(this.intervalId)
         HP.textContent = `GAME OVER`
-      }
-      if (this.score == this.blocks.length) {
-        confirm("game clear!")
-        clearInterval(this.intervalId)
-        return
-      }
-      if (count !== this.score) {
-        return true
       }
     }
     KeyDown(e) {
@@ -282,52 +229,20 @@
     restart() {
       //ゲームリスタート処理
       HP.textContent = this.life.join("")
+      this.score = 0
       if (this.life.length) {
         //ボールの位置の再定義
         this.ballX = rand(0, canvas.width)
-        this.ballY = rand(canvas.height / 2, canvas.height)
+        this.ballY = rand(0, canvas.height / 2)
         this.ball = new Ball(this.ballX, this.ballY)
-        this.ball.changeY = -1
         this.set()
       }
-    }
-    createBlocks(_col, _row) {
-      let blocks = []
-      let currentBlock = new Block(0, 0, 0, 0)
-      const blockRange = {
-        width: this.width / _col,
-        height: this.height / 2 / _row,
-      }
-      const margin = 5
-      const blockWidth = blockRange.width - margin * 2
-      const blockHeight = Math.min(15, blockRange.height - margin * 2)
-
-      for (let row = 0; row < _row; row++) {
-        currentBlock.y = row * blockRange.height
-        for (let col = 0; col < _col; col++) {
-          currentBlock.x = col * blockRange.width
-          blocks.push(
-            new Block(
-              currentBlock.x + margin,
-              currentBlock.y + margin,
-              blockWidth,
-              blockHeight
-            )
-          )
-        }
-      }
-      return blocks
     }
     draw() {
       this.context.fillStyle = "black"
       this.context.fillRect(0, 0, this.width, this.height)
       this.ball.draw()
       this.bar.draw()
-      this.blocks
-        .filter((block) => block.visible == true)
-        .forEach((block) => {
-          block.draw()
-        })
     }
   }
 
