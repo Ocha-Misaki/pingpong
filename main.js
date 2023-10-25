@@ -11,17 +11,27 @@
     constructor(_x, _y) {
       this.canvas = document.getElementById("canvasId")
       this.context = this.canvas.getContext("2d")
+      this.r = 5
+      this.init(_x, _y)
+    }
+    init(_x, _y) {
       this.x = _x
       this.y = _y
-      this.r = 10
-      this.changeX = 1
-      this.changeY = 1
+      let n = Math.floor(Math.random() * 5)
+      this.changeX = n % 2 == 0 ? 1 : -1
+      this.changeY = -1
     }
     get right() {
       return this.x + this.r
     }
     get left() {
       return this.x - this.r
+    }
+    get top() {
+      return this.y + this.r
+    }
+    get bottom() {
+      return this.y - this.r
     }
     update() {
       this.x += this.changeX
@@ -122,16 +132,36 @@
       this.color = _color
     }
     isHit(ball) {
+      const nextBall = new Ball(ball.x + ball.changeX, ball.y + ball.changeY)
+
       if (
-        ball.right + ball.changeX > this.ptStart.x &&
-        ball.left + ball.changeX < this.ptEnd.x &&
-        ball.y + ball.changeY > this.ptStart.y &&
-        ball.y + ball.changeY < this.ptEnd.y
+        nextBall.right > this.ptStart.x &&
+        nextBall.left < this.ptEnd.x &&
+        nextBall.top > this.ptStart.y &&
+        nextBall.bottom < this.ptEnd.y
       ) {
-        return true
-      } else {
-        return false
+        const distances = [
+          {
+            direction: "top",
+            val: Math.abs(nextBall.y - this.ptStart.y),
+          },
+          {
+            direction: "bottom",
+            val: Math.abs(nextBall.y - this.ptEnd.y),
+          },
+          {
+            direction: "left",
+            val: Math.abs(nextBall.x - this.ptStart.x),
+          },
+          {
+            direction: "right",
+            val: Math.abs(nextBall.x - this.ptEnd.x),
+          },
+        ]
+        distances.sort((a, b) => a.val - b.val)
+        return distances[0].direction
       }
+      return undefined
     }
     draw() {
       this.context.fillStyle = this.color
@@ -151,9 +181,6 @@
       this.ballX = this.bar.ptStart.x + this.bar.width / 2
       this.ballY = this.bar.ptStart.y
       this.ball = new Ball(this.ballX, this.ballY)
-      let n = Math.floor(Math.random() * 5)
-      this.ballDirection = n % 2 == 0 ? 1 : -1
-      this.ball.changeX = this.ballDirection
       this.width = 300
       this.height = 300
       this.blocks = this.createBlocks(8, 8)
@@ -232,13 +259,20 @@
       }
 
       //blockのヒット判定
+
       this.blocks
         .filter((block) => block.visible == true)
         .forEach((block) => {
-          if (block.isHit(this.ball) == true) {
+          let result = block.isHit(this.ball)
+          if (result == "top" || result == "bottom") {
             block.visible = false
             this.score++
             this.ball.changeDirectionY()
+          }
+          if (result == "left" || result == "right") {
+            block.visible = false
+            this.score++
+            this.ball.changeDirectionX()
           }
         })
     }
@@ -290,11 +324,7 @@
         //ボールの位置の再定義
         this.ballX = this.bar.ptStart.x + this.bar.width / 2
         this.ballY = this.bar.ptStart.y
-        this.ball = new Ball(this.ballX, this.ballY)
-        let n = Math.floor(Math.random() * 5)
-        this.ballDirection = n % 2 == 0 ? 1 : -1
-        this.ball.changeX = this.ballDirection
-        this.ball.changeY = -1
+        this.ball.init(this.ballX, this.ballY)
         this.set()
       }
     }
@@ -305,9 +335,16 @@
         width: this.width / _col,
         height: this.height / 2 / _row,
       }
-      const margin = 5
+      const minBlockHeight = 15
+      // 設定できるY方向のマージンの最大値
+      const maxMargin = (blockRange.height - minBlockHeight) / 2 //上下分の余白が含まれているので、/2している
+      // 30は任意で変更できるが、maxMargin を超えないようにする
+      const margin = Math.min(30, maxMargin)
       const blockWidth = blockRange.width - margin * 2
-      const blockHeight = Math.min(15, blockRange.height - margin * 2)
+      const blockHeight = Math.min(
+        minBlockHeight,
+        blockRange.height - margin * 2
+      )
 
       for (let row = 0; row < _row; row++) {
         currentBlock.y = row * blockRange.height
